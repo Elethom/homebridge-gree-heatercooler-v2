@@ -1,8 +1,14 @@
 # homebridge-gree-heatercooler-v2
 
-![version](https://img.shields.io/npm/v/homebridge-gree-heatercooler-v2) ![license](https://img.shields.io/npm/l/homebridge-gree-heatercooler-v2)
+![version](https://img.shields.io/npm/v/homebridge-gree-heatercooler-v2) ![license](https://img.shields.io/badge/license-GPL-blue)
 
 Homebridge plugin for Gree air conditioners.
+
+## Install
+
+```shell
+$ npm install -g homebridge-gree-heatercooler-v2
+```
 
 ## Config Example
 
