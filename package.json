@@ -1,0 +1,29 @@
+{
+  "name": "homebridge-gree-heatercooler-v2",
+  "version": "0.1.0",
+  "description": "Homebridge plugin for Gree air conditioners.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elethom/homebridge-gree-heatercooler-v2.git"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "gree",
+    "heatercooler",
+    "air conditioner"
+  ],
+  "author": "Elethom",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Elethom/homebridge-gree-heatercooler-v2/issues"
+  },
+  "homepage": "https://github.com/Elethom/homebridge-gree-heatercooler-v2#readme",
+  "engines": {
+    "homebridge": ">=1.0.0",
+    "node": ">=10.0.0"
+  }
+}

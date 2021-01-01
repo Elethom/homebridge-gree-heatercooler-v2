@@ -1,0 +1,22 @@
+{
+  "bridge": {
+    "name": "Homebridge",
+    "username": "CC:22:3D:E3:CE:30",
+    "port": 51826,
+    "pin": "031-45-154"
+  },
+  "description": "",
+  "accessories": [
+    {
+      "accessory": "GreeHeaterCooler",
+      "address": "10.0.1.128",
+      "model": "KFR-35GW(35592)FNhAc-A1(WIFI)",
+      "name": "Living Room AC",
+      "serialNumber": "4R0099H015337",
+      "minimumTargetTemperature": 16,
+      "maximumTargetTemperature": 30,
+      "updateInterval": 1000,
+      "retryInterval": 5000
+    }
+  ]
+}
