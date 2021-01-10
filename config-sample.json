@@ -15,6 +15,7 @@
       "serialNumber": "4R0099H015337",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
+      "fakeSensor": false,
       "updateInterval": 1000,
       "retryInterval": 5000
     }

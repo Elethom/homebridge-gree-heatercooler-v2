@@ -111,10 +111,25 @@ class GreeHeaterCooler {
   }
 
   get currentTemperature() {
+    if (this.config.fakeSensor) {
+      return this.device.status[commands.targetTemperature.code];
+    }
+    
     return this.device.status[commands.temperature.code];
   }
 
   get currentState() { // actual state
+    if (this.config.fakeSensor) {
+      switch (this.device.status[commands.mode.code]) {
+        case commands.mode.value.cool:
+          return Characteristic.CurrentHeaterCoolerState.COOLING;
+        case commands.mode.value.heat:
+          return Characteristic.CurrentHeaterCoolerState.HEATING;
+        default:
+          return Characteristic.CurrentHeaterCoolerState.IDLE;
+      }
+    }
+    
     const mode = this.device.status[commands.mode.code];
     if (this.targetTemperature < this.currentTemperature
       && (mode === commands.mode.value.auto || mode === commands.mode.value.cool)) {
