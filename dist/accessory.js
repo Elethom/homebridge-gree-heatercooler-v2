@@ -10,6 +10,7 @@ class GreeHeaterCooler {
   constructor(log, config) {
     this.log = log;
     this.config = config;
+    log.info(`Config loaded: ${JSON.stringify(config, null, 2)}`);
     
     this.informationService = new Service.AccessoryInformation()
       .setCharacteristic(Characteristic.Manufacturer, "Gree")
@@ -73,7 +74,7 @@ class GreeHeaterCooler {
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
 
-    this.device = new Device(config, () => {
+    this.device = new Device(log, config, () => {
       this.deviceService.getCharacteristic(Characteristic.Active).updateValue(this.active);
       this.deviceService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
       this.deviceService.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(this.currentState);
@@ -222,6 +223,7 @@ class GreeHeaterCooler {
   }
 
   onGet(key, callback) {
+    this.log.debug(`[${this.device.mac}] Get characteristic: ${key}`);
     const value = this[key];
     if (value == null) {
       callback(new Error(`Failed to get characteristic value for key: ${key}`));
@@ -231,6 +233,7 @@ class GreeHeaterCooler {
   }
 
   onSet(key, value, callback) {
+    this.log.debug(`[${this.device.mac}] Set characteristic ${key} to value: ${value}`);
     this[key] = value;
     callback(null);
   }

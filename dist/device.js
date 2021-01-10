@@ -8,7 +8,8 @@ const retryInterval = 5000;
 const updateInterval = 1000;
 
 class Device {
-  constructor(config, updateCallback) {
+  constructor(log, config, updateCallback) {
+    this.log = log;
     this.config = config;
     this.updateCallback = updateCallback || (() => {});
     this.bound = false;
@@ -26,12 +27,14 @@ class Device {
 
   _connect() {
     try {
+      this.log.debug(`Setup socket at ${localPort}`);
       this.socket.bind(localPort, () => {
         const msg = JSON.stringify({ t: "scan" });
+        this.log.debug(`Scan for device at ${this.config.address}:${remotePort}`);
         this.socket.send(msg, remotePort, this.config.address);
       });
     } catch (error) {
-      console.error(error);
+      this.log.error(error);
       const that = this;
       setTimeout(() => {
         if (that.bound === false) {
@@ -47,15 +50,18 @@ class Device {
       t: "bind",
       uid: 0,
     };
+    this.log.debug(`Bind to device: ${this.mac}`);
     this._sendRequest(message);
   }
 
   _updateStatus() {
+    const cols = Object.keys(commands).map(k => commands[k].code);
     const message = {
       mac: this.mac,
       t: "status",
-      cols: Object.keys(commands).map(k => commands[k].code),
+      cols
     };
+    this.log.debug(`[${this.mac}] Update status for keys: ${cols}`);
     this._sendRequest(message);
   }
 
@@ -67,6 +73,7 @@ class Device {
       opt: keys,
       p: values,
     };
+    this.log.debug(`[${this.mac}] Send commands: %j`, commands);
     this._sendRequest(message);
   }
 
@@ -80,6 +87,7 @@ class Device {
       pack,
     };
     const msg = JSON.stringify(request);
+    this.log.debug(`[${this.mac}] Send request: %j`, message);
     this.socket.send(msg, remotePort, this.config.address);
   }
 
@@ -88,12 +96,14 @@ class Device {
     switch (pack.t) {
       case "dev": // connect
         this.mac = pack.mac || pack.cid;
+        this.log.debug(`Found device: ${this.mac}`);
         this._bind();
         break;
       case "bindok": // bound
         this.mac = pack.mac || pack.cid;
         this.key = pack.key;
         this.bound = true;
+        this.log.info(`Bound to device: ${this.mac}`);
         setInterval(
           this._updateStatus.bind(this),
           this.config.updateInterval || updateInterval
@@ -103,12 +113,14 @@ class Device {
         pack.cols.forEach((col, i) => {
           this.status[col] = pack.dat[i];
         });
+        this.log.debug(`[${this.mac}] Status updated: %j`, this.status);
         this.updateCallback();
         break;
       case "res": // command response
         pack.opt.forEach((col, i) => {
           this.status[col] = pack.val[i];
         });
+        this.log.debug(`[${this.mac}] Command responded: %j`, this.status);
         this.updateCallback();
         break;
     }
