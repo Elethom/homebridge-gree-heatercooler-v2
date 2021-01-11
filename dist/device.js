@@ -27,9 +27,10 @@ class Device {
 
   _connect() {
     try {
-      this.log.debug(`Setup socket at ${localPort}`);
-      this.socket.bind(localPort, () => {
+      this.log.debug(`Setup socket`);
+      this.socket.bind(() => {
         const msg = JSON.stringify({ t: "scan" });
+        this.log.debug(`Socket setup at ${this.socket.address().port}`);
         this.log.debug(`Scan for device at ${this.config.address}:${remotePort}`);
         this.socket.send(msg, remotePort, this.config.address);
       });
