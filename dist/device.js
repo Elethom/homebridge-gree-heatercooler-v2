@@ -36,13 +36,13 @@ class Device {
       });
     } catch (error) {
       this.log.error(error);
-      const that = this;
-      setTimeout(() => {
-        if (that.bound === false) {
-          that._connect();
-        }
-      }, this.config.retryInterval || retryInterval);
     }
+    const that = this;
+    setTimeout(() => {
+      if (that.bound === false) {
+        that._connect();
+      }
+    }, this.config.retryInterval || retryInterval);
   }
 
   _bind() {
