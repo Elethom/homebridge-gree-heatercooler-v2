@@ -21,6 +21,7 @@ class Device {
         this._handleResponse(msg.toString());
       }
     });
+    this.socket.on("listening", this._scan.bind(this));
     
     this._connect();
   }
@@ -29,21 +30,35 @@ class Device {
     try {
       this.log.debug(`Setup socket`);
       this.socket.bind(() => {
-        const msg = JSON.stringify({ t: "scan" });
         this.log.debug(`Socket setup at ${this.socket.address().port}`);
-        this.log.debug(`Scan for device at ${this.config.address}:${remotePort}`);
-        this.socket.send(msg, remotePort, this.config.address);
       });
+    } catch (error) {
+      this.log.error(error);
+      const that = this;
+      setTimeout(() => {
+        that.log.error("Fail to setup socket, retrying...");
+        that._connect();
+      }, this.config.retryInterval || retryInterval);
+    }
+  }
+  
+  _scan() {
+    try {
+      const msg = JSON.stringify({ t: "scan" });
+      this.log.debug(`Scan for device at ${this.config.address}:${remotePort}`);
+      this.socket.send(msg, remotePort, this.config.address);
     } catch (error) {
       this.log.error(error);
     }
     const that = this;
     setTimeout(() => {
       if (that.bound === false) {
-        that._connect();
+        this.log.error(`Device not found at ${this.config.address}:${remotePort}, retrying...`);
+        that._scan();
       }
     }, this.config.retryInterval || retryInterval);
   }
+
 
   _bind() {
     const message = {
@@ -89,7 +104,11 @@ class Device {
     };
     const msg = JSON.stringify(request);
     this.log.debug(`[${this.mac}] Send request: %j`, message);
-    this.socket.send(msg, remotePort, this.config.address);
+    try {
+      this.socket.send(msg, remotePort, this.config.address);
+    } catch (error) {
+      this.log.error(error);
+    }
   }
 
   _handleResponse(message) {
