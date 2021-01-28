@@ -22,6 +22,16 @@ module.exports = {
   temperature: {
     code: "TemSen",
   },
+  units: {
+    code: "TemUn",
+    value: {
+      celsius: 0,
+      fahrenheit: 1,
+    },
+  },
+  temperatureOffset: {
+    code: "TemRec",
+  },
   speed: {
     code: "WdSpd",
     value: {

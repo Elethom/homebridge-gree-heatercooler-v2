@@ -60,7 +60,7 @@ class GreeHeaterCooler {
       .setProps({
         minValue: config.minimumTargetTemperature || 16,
         maxValue: config.maximumTargetTemperature || 30,
-        minStep: 1,
+        minStep: 0.1,
       })
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
@@ -69,7 +69,7 @@ class GreeHeaterCooler {
       .setProps({
         minValue: config.minimumTargetTemperature || 16,
         maxValue: config.maximumTargetTemperature || 30,
-        minStep: 1,
+        minStep: 0.1,
       })
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
@@ -194,14 +194,28 @@ class GreeHeaterCooler {
   }
 
   get units() {
-    return Characteristic.TemperatureDisplayUnits.CELSIUS;
+    switch (this.device.status[commands.units.code]) {
+      case commands.units.value.fahrenheit:
+        return Characteristic.TemperatureDisplayUnits.FAHRENHEIT;
+      case commands.units.value.celsius:
+        return Characteristic.TemperatureDisplayUnits.CELSIUS;
+    }
   }
 
   set units(value) {
-    // not supported
-    if (value !== this.units) {
-      this.deviceService.getCharacteristic(Characteristic.TemperatureDisplayUnits).updateValue(this.units);
+    if (value === this.units) return;
+    
+    this.deviceService.getCharacteristic(Characteristic.TemperatureDisplayUnits).updateValue(this.units);
+
+    const command = (() => {
+    switch (value) {
+      case Characteristic.TemperatureDisplayUnits.CELSIUS:
+        return commands.units.value.celsius;
+      case Characteristic.TemperatureDisplayUnits.FAHRENHEIT:
+        return commands.units.value.fahrenheit;
     }
+    })();
+    this.device.sendCommands({ [commands.units.code] : command });
   }
 
   get swingMode() {
@@ -228,13 +242,16 @@ class GreeHeaterCooler {
   }
 
   get targetTemperature() {
-    return this.device.status[commands.targetTemperature.code];
+    return this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1);
   }
 
   set targetTemperature(value) {
     if (value === this.targetTemperature) return;
 
-    this.device.sendCommands({ [commands.targetTemperature.code] : value });
+    this.device.sendCommands({
+      [commands.targetTemperature.code] : Math.round(value),
+      [commands.temperatureOffset.code] : parseInt(value - Math.round(value) >= 0 ? 1 : 0)
+    });
   }
 
   onGet(key, callback) {
