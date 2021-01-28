@@ -1,6 +1,6 @@
 {
   "name": "homebridge-gree-heatercooler-v2",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Homebridge plugin for Gree air conditioners.",
   "main": "index.js",
   "scripts": {
