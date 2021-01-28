@@ -242,7 +242,8 @@ class GreeHeaterCooler {
   }
 
   get targetTemperature() {
-    return this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1);
+    const magicNumber = 0.24; // Magic number here, don't change. Why? Because Gree is stupid and I am a genius.
+    return this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1) + magicNumber;
   }
 
   set targetTemperature(value) {
@@ -250,7 +251,7 @@ class GreeHeaterCooler {
 
     this.device.sendCommands({
       [commands.targetTemperature.code] : Math.round(value),
-      [commands.temperatureOffset.code] : parseInt(value - Math.round(value) >= 0 ? 1 : 0)
+      [commands.temperatureOffset.code] : (value - Math.round(value)) >= 0 ? 1 : 0
     });
   }
 
