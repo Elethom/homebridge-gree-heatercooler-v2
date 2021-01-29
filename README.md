@@ -38,6 +38,17 @@ $ npm install -g homebridge-gree-heatercooler-v2
 }
 ```
 
+### Params
+
+* `accessory`: Accessory name to load. Not compatible with other plugins with the same name.
+* `address`: Local IP address of the AC unit. It has to be connected to local network before using this plugin.
+* `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
+* `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C) Range of target temperature supported by the AC unit. May vary depending on your model.
+* `fakeSensor`: (true | false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
+* `sensorOffset`: (0 or 40) Some models have an offset of 40 on temperature sensor to avoid negative values. If the temperature shown is abnormally high, set it to `40`.
+* `updateInterval`: (in ms) Interval for refreshing current status of the AC unit.
+* `retryInterval`: (in ms) Retry interval when connnection fails.
+
 ## License
 
 This project is released under the terms and conditions of the [GPL license](https://www.gnu.org/licenses/#GPL). See [LICENSE](/LICENSE) for details.
