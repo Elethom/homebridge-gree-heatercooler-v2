@@ -30,6 +30,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
       "fakeSensor": false,
+      "sensorOffset": 0,
       "updateInterval": 1000,
       "retryInterval": 5000
     }

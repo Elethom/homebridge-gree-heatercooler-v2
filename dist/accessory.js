@@ -115,7 +115,7 @@ class GreeHeaterCooler {
       return this.device.status[commands.targetTemperature.code];
     }
     
-    return this.device.status[commands.temperature.code];
+    return this.device.status[commands.temperature.code] - (this.config.sensorOffset || 0);
   }
 
   get currentState() { // actual state
