@@ -10,7 +10,33 @@ Homebridge plugin for Gree air conditioners.
 $ npm install -g homebridge-gree-heatercooler-v2
 ```
 
-## Config Example
+## Features
+
+* Info (get/set in config): model, name, serial number
+* Mode (get/set): auto, heat, cool, off
+* Current temperature (get)
+* Target temperature (get/set): granularity of 0.5 °C or 1 °F
+* Display units (get/set): celsius, fahrenheit
+* Oscillate (get/set)
+
+### Limitations
+
+* Oscillate: due to HomeKit's limitations, only full range or off on vertical
+
+## Config
+
+### Params
+
+* `accessory`: Accessory name to load. Not compatible with other plugins with the same name.
+* `address`: Local IP address of the AC unit. It has to be connected to local network before using this plugin.
+* `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
+* `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C) Range of target temperature supported by the AC unit. May vary depending on your model.
+* `fakeSensor`: (true | false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
+* `sensorOffset`: (0 or 40) Some models have an offset of 40 on temperature sensor to avoid negative values. If the temperature shown is abnormally high, set it to `40`.
+* `updateInterval`: (in ms) Interval for refreshing current status of the AC unit.
+* `retryInterval`: (in ms) Retry interval when connnection fails.
+
+### Example
 
 ```json
 {
@@ -37,17 +63,6 @@ $ npm install -g homebridge-gree-heatercooler-v2
   ]
 }
 ```
-
-### Params
-
-* `accessory`: Accessory name to load. Not compatible with other plugins with the same name.
-* `address`: Local IP address of the AC unit. It has to be connected to local network before using this plugin.
-* `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
-* `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C) Range of target temperature supported by the AC unit. May vary depending on your model.
-* `fakeSensor`: (true | false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
-* `sensorOffset`: (0 or 40) Some models have an offset of 40 on temperature sensor to avoid negative values. If the temperature shown is abnormally high, set it to `40`.
-* `updateInterval`: (in ms) Interval for refreshing current status of the AC unit.
-* `retryInterval`: (in ms) Retry interval when connnection fails.
 
 ## License
 
