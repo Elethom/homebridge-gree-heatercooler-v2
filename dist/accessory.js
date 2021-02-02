@@ -224,6 +224,8 @@ class GreeHeaterCooler {
         return Characteristic.SwingMode.SWING_DISABLED;
       case commands.swingMode.value.on:
         return Characteristic.SwingMode.SWING_ENABLED;
+      default:
+        return Characteristic.SwingMode.SWING_ENABLED;
     }
   }
 
