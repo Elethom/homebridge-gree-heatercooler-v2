@@ -131,11 +131,12 @@ class GreeHeaterCooler {
     }
     
     const mode = this.device.status[commands.mode.code];
-    if (this.targetTemperature < this.currentTemperature
+    const targetTemperature = this.device.status[commands.targetTemperature.code]; // Compare rounded value
+    if (targetTemperature < this.currentTemperature
       && (mode === commands.mode.value.auto || mode === commands.mode.value.cool)) {
       return Characteristic.CurrentHeaterCoolerState.COOLING;
     }
-    if (this.targetTemperature > this.currentTemperature
+    if (targetTemperature > this.currentTemperature
       && (mode === commands.mode.value.auto || mode === commands.mode.value.heat)) {
       return Characteristic.CurrentHeaterCoolerState.HEATING;
     }
