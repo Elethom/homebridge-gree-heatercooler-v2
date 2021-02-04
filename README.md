@@ -1,6 +1,6 @@
 # homebridge-gree-heatercooler-v2
 
-![version](https://img.shields.io/npm/v/homebridge-gree-heatercooler-v2) ![license](https://img.shields.io/npm/l/homebridge-gree-heatercooler-v2)
+![version](https://img.shields.io/npm/v/homebridge-gree-heatercooler-v2) ![license](https://img.shields.io/npm/l/homebridge-gree-heatercooler-v2) ![stats](https://img.shields.io/npm/dw/homebridge-gree-heatercooler-v2)
 
 Homebridge plugin for Gree air conditioners.
 
