@@ -21,7 +21,10 @@ class Device {
         this._handleResponse(msg.toString());
       }
     });
-    this.socket.on("listening", this._scan.bind(this));
+    this.socket.on(
+      "listening",
+      this.config.mac ? this._init.bind(this) : this._scan.bind(this)
+    );
     
     this._connect();
   }
@@ -41,7 +44,31 @@ class Device {
       }, this.config.retryInterval || retryInterval);
     }
   }
-  
+
+  _retry(callback, message){
+    const that = this;
+    setTimeout(() => {
+      if (that.bound === false) {
+        that.log.error(message);
+        callback();
+      }
+    }, this.config.retryInterval || retryInterval);
+  }
+
+  _init(){
+    try {
+      this.mac = this.config.mac;
+      this._bind();
+      this.log.debug(`Binding to device at ${this.config.address}:${remotePort}(${this.mac})`);
+    } catch (error) {
+      this.log.error(error);
+    }
+    this._retry(
+      this._init.bind(this),
+      `Device not found at ${this.config.address}:${remotePort}(${this.mac}), retrying...`
+    );
+  }
+
   _scan() {
     try {
       const msg = JSON.stringify({ t: "scan" });
@@ -50,15 +77,11 @@ class Device {
     } catch (error) {
       this.log.error(error);
     }
-    const that = this;
-    setTimeout(() => {
-      if (that.bound === false) {
-        this.log.error(`Device not found at ${this.config.address}:${remotePort}, retrying...`);
-        that._scan();
-      }
-    }, this.config.retryInterval || retryInterval);
+    this._retry(
+      this._scan.bind(this),
+      `Device not found at ${this.config.address}:${remotePort}, retrying...`
+    );
   }
-
 
   _bind() {
     const message = {

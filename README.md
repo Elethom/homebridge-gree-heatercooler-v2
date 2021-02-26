@@ -31,6 +31,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
 
 * `accessory`: Accessory name to load. Not compatible with other plugins with the same name.
 * `address`: Local IP address of the AC unit. It has to be connected to local network before using this plugin.
+* `mac`: Physical (MAC) address of the AC unit. Required by some AC models, try to set this if you see "Device not found at..." error in the log. It must be just lower case letters and/or numbers.  
 * `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
 * `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C) Range of target temperature supported by the AC unit. May vary depending on your model.
 * `fakeSensor`: (true | false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
@@ -52,6 +53,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
     {
       "accessory": "GreeHeaterCooler",
       "address": "10.0.1.128",
+      "mac": "f4911e504354",    
       "model": "KFR-35GW(35592)FNhAc-A1(WIFI)",
       "name": "Living Room AC",
       "serialNumber": "4R0099H012345",
