@@ -246,7 +246,7 @@ class GreeHeaterCooler {
 
   get targetTemperature() {
     const magicNumber = 0.24; // Magic number here, don't change. Why? Because Gree is stupid and I am a genius.
-    return min(this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1) + magicNumber, this.config.maximumTargetTemperature);
+    return Math.min(this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1) + magicNumber, this.device.config.maximumTargetTemperature);
   }
 
   set targetTemperature(value) {
