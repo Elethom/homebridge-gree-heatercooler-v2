@@ -132,6 +132,7 @@ class GreeHeaterCooler {
     
     const mode = this.device.status[commands.mode.code];
     const targetTemperature = this.device.status[commands.targetTemperature.code]; // Compare rounded value
+    if (mode === undefined || targetTemperature === undefined) return;
     if (targetTemperature < this.currentTemperature
       && (mode === commands.mode.value.auto || mode === commands.mode.value.cool)) {
       return Characteristic.CurrentHeaterCoolerState.COOLING;
@@ -144,7 +145,9 @@ class GreeHeaterCooler {
   }
   
   get targetState() { // mode
-    switch (this.device.status[commands.mode.code]) {
+    const mode = this.device.status[commands.mode.code];
+    if (mode === undefined) return;
+    switch (mode) {
       case commands.mode.value.cool:
         return Characteristic.TargetHeaterCoolerState.COOL;
       case commands.mode.value.heat:
@@ -220,7 +223,9 @@ class GreeHeaterCooler {
   }
 
   get swingMode() {
-    switch (this.device.status[commands.swingMode.code]) {
+    const swingMode = this.device.status[commands.swingMode.code];
+    if (swingMode === undefined) return;
+    switch (swingMode) {
       case commands.swingMode.value.off:
         return Characteristic.SwingMode.SWING_DISABLED;
       case commands.swingMode.value.on:
@@ -246,7 +251,10 @@ class GreeHeaterCooler {
 
   get targetTemperature() {
     const magicNumber = 0.24; // Magic number here, don't change. Why? Because Gree is stupid and I am a genius.
-    return Math.min(this.device.status[commands.targetTemperature.code] + 0.5 * (this.device.status[commands.temperatureOffset.code] - 1) + magicNumber, this.device.config.maximumTargetTemperature);
+    const temperature = this.device.status[commands.targetTemperature.code];
+    const offset = this.device.status[commands.temperatureOffset.code];
+    if (temperature === undefined || offset === undefined) return;
+    return Math.min(temperature + 0.5 * (offset - 1) + magicNumber, this.device.config.maximumTargetTemperature);
   }
 
   set targetTemperature(value) {
@@ -261,7 +269,7 @@ class GreeHeaterCooler {
   onGet(key, callback) {
     this.log.debug(`[${this.device.mac}] Get characteristic: ${key}`);
     const value = this[key];
-    if (value == null) {
+    if (value == null || value !== value) { // NaN not equal to self
       callback(new Error(`Failed to get characteristic value for key: ${key}`));
     } else {
       callback(null, value);
