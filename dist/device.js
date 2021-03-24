@@ -1,3 +1,4 @@
+const EventEmitter = require("events");
 const dgram = require("dgram");
 const crypto = require("./crypto");
 const commands = require("./commands");
@@ -25,6 +26,9 @@ class Device {
       "listening",
       this.config.mac ? this._init.bind(this) : this._scan.bind(this)
     );
+    
+    this.timer = new EventEmitter();
+    this.timer.on("refresh", this._updateStatus.bind(this));
     
     this._connect();
   }
@@ -148,7 +152,7 @@ class Device {
         this.bound = true;
         this.log.info(`Bound to device: ${this.mac}`);
         setInterval(
-          this._updateStatus.bind(this),
+          () => this.timer.emit("refresh"),
           this.config.updateInterval || updateInterval
         );
         break;
