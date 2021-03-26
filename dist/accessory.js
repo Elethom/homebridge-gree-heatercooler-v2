@@ -9,7 +9,13 @@ let Service, Characteristic;
 class GreeHeaterCooler {
   constructor(log, config) {
     this.log = log;
-    this.config = config;
+    this.config = {
+      minimumTargetTemperature: 16,
+      maximumTargetTemperature: 30,
+      fakeSensor: false,
+      sensorOffset: 0,
+      ...config,
+    };
     log.info(`Config loaded: ${JSON.stringify(config, null, 2)}`);
     
     this.informationService = new Service.AccessoryInformation()

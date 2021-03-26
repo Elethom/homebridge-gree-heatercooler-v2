@@ -11,7 +11,11 @@ const updateInterval = 1000;
 class Device {
   constructor(log, config, updateCallback) {
     this.log = log;
-    this.config = config;
+    this.config = {
+      retryInterval,
+      updateInterval,
+      ...config,
+    };
     this.updateCallback = updateCallback || (() => {});
     this.bound = false;
     this.status = {};
@@ -45,7 +49,7 @@ class Device {
       setTimeout(() => {
         that.log.error("Fail to setup socket, retrying...");
         that._connect();
-      }, this.config.retryInterval || retryInterval);
+      }, this.config.retryInterval);
     }
   }
 
@@ -56,7 +60,7 @@ class Device {
         that.log.error(message);
         callback();
       }
-    }, this.config.retryInterval || retryInterval);
+    }, this.config.retryInterval);
   }
 
   _init(){
