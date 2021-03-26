@@ -17,16 +17,16 @@ class GreeHeaterCooler {
       sensorOffset: 0,
       ...config,
     };
-    log.info(`Config loaded: ${JSON.stringify(config, null, 2)}`);
+    log.info(`Config loaded: ${JSON.stringify(this.config, null, 2)}`);
     
     this.informationService = new Service.AccessoryInformation()
       .setCharacteristic(Characteristic.Manufacturer, "Gree")
-      .setCharacteristic(Characteristic.Model, config.model)
-      .setCharacteristic(Characteristic.Name, config.name)
-      .setCharacteristic(Characteristic.SerialNumber, config.serialNumber)
+      .setCharacteristic(Characteristic.Model, this.config.model)
+      .setCharacteristic(Characteristic.Name, this.config.name)
+      .setCharacteristic(Characteristic.SerialNumber, this.config.serialNumber)
       .setCharacteristic(Characteristic.FirmwareRevision, version);
     
-    this.deviceService = new Service.HeaterCooler(config.name);
+    this.deviceService = new Service.HeaterCooler(this.config.name);
 
     // Required
     this.deviceService
@@ -65,8 +65,8 @@ class GreeHeaterCooler {
     this.deviceService
       .getCharacteristic(Characteristic.CoolingThresholdTemperature)
       .setProps({
-        minValue: config.minimumTargetTemperature || 16,
-        maxValue: config.maximumTargetTemperature || 30,
+        minValue: this.config.minimumTargetTemperature,
+        maxValue: this.config.maximumTargetTemperature,
         minStep: 0.1,
       })
       .on("get", this.onGet.bind(this, "targetTemperature"))
@@ -74,14 +74,14 @@ class GreeHeaterCooler {
     this.deviceService
       .getCharacteristic(Characteristic.HeatingThresholdTemperature)
       .setProps({
-        minValue: config.minimumTargetTemperature || 16,
-        maxValue: config.maximumTargetTemperature || 30,
+        minValue: this.config.minimumTargetTemperature,
+        maxValue: this.config.maximumTargetTemperature,
         minStep: 0.1,
       })
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
 
-    this.device = new Device(log, config, () => {
+    this.device = new Device(log, this.config, () => {
       this.deviceService.getCharacteristic(Characteristic.Active).updateValue(this.active);
       this.deviceService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(this.currentTemperature);
       this.deviceService.getCharacteristic(Characteristic.CurrentHeaterCoolerState).updateValue(this.currentState);
