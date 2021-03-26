@@ -16,6 +16,7 @@
       "serialNumber": "4R0099H015337",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
+      "xFan": true,
       "fakeSensor": false,
       "sensorOffset": 0,
       "updateInterval": 1000,

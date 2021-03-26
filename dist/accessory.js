@@ -12,6 +12,7 @@ class GreeHeaterCooler {
     this.config = {
       minimumTargetTemperature: 16,
       maximumTargetTemperature: 30,
+      xFan: true,
       fakeSensor: false,
       sensorOffset: 0,
       ...config,
@@ -176,7 +177,10 @@ class GreeHeaterCooler {
           return commands.mode.value.cool;
       }
     })();
-    this.device.sendCommands({ [commands.mode.code] : command });
+    this.device.sendCommands({
+      [commands.mode.code] : command,
+      [commands.xFan.code] : this.config.xFan ? commands.xFan.value.on : commands.xFan.value.off,
+    });
   }
 
   get speed() {

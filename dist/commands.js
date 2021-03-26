@@ -50,4 +50,11 @@ module.exports = {
       on: 1,
     },
   },
+  xFan: {        
+    code: "Blo",
+    value: {
+      off: 0,
+      on: 1,
+    },
+  },
 };
