@@ -13,6 +13,7 @@ class GreeHeaterCooler {
       minimumTargetTemperature: 16,
       maximumTargetTemperature: 30,
       xFan: true,
+      lightControl: false,
       fakeSensor: false,
       sensorOffset: 0,
       ...config,
@@ -80,6 +81,12 @@ class GreeHeaterCooler {
       })
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
+    
+    this.lightSwitchService = new Service.Switch(`${this.config.name} Light`);
+    this.lightSwitchService
+      .getCharacteristic(Characteristic.On)
+      .on("get", this.onGet.bind(this, "light"))
+      .on("set", this.onSet.bind(this, "light"));
 
     this.device = new Device(log, this.config, () => {
       this.deviceService.getCharacteristic(Characteristic.Active).updateValue(this.active);
@@ -277,6 +284,22 @@ class GreeHeaterCooler {
       [commands.temperatureOffset.code] : (value - Math.round(value)) >= 0 ? 1 : 0
     });
   }
+  
+  get light() {
+    switch (this.device.status[commands.light.code]) {
+      case commands.light.value.on:
+        return true;
+      case commands.light.value.off:
+        return false;
+    }
+  }
+
+  set light(value) {
+    if (value === this.light) return;
+    
+    const command = value ? commands.light.value.on : commands.light.value.off;
+    this.device.sendCommands({ [commands.light.code] : command });
+  }
 
   onGet(key, callback) {
     this.log.debug(`[${this.device.mac}] Get characteristic: ${key}`);
@@ -295,10 +318,14 @@ class GreeHeaterCooler {
   }
 
   getServices() {
-    return [
+    const services = [
       this.informationService,
-      this.deviceService
+      this.deviceService,
     ];
+    if (this.config.lightControl) {
+      services.push(this.lightSwitchService);
+    }
+    return services;
   }
 }
 

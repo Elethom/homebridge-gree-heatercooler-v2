@@ -35,6 +35,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
 * `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C, default to 16-30) Range of target temperature supported by the AC unit. May vary depending on your model.
 * `xFan`: (true | false, default to true) Keep the fan running for a while after shutting down from Dry or Cool mode. This helps to keep the filter from being damp, which could lead to mold growing on it. Recommend to leave on.
+* `lightControl`: (true | false, default to false) Show light control as a switch.
 * `fakeSensor`: (true | false, default to false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
 * `sensorOffset`: (0 or 40, default to 0) Some models have an offset of 40 on temperature sensor to avoid negative values. If the temperature shown is abnormally high, set it to `40`.
 * `updateInterval`: (in ms, default to 1000) Interval for refreshing current status of the AC unit.
@@ -61,6 +62,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
       "xFan": true,
+      "lightControl": false,
       "fakeSensor": false,
       "sensorOffset": 0,
       "updateInterval": 1000,

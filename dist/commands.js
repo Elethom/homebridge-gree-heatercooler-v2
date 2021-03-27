@@ -57,4 +57,11 @@ module.exports = {
       on: 1,
     },
   },
+  light: {
+    code: "Lig",
+    value: {
+      off: 0,
+      on: 1,
+    },
+  },
 };
