@@ -18,12 +18,15 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * Target temperature (get/set): granularity of 0.5 °C or 1 °F
 * Display units (get/set): celsius, fahrenheit
 * Oscillate (get/set)
+* X-Fan (set in config)
+* Light (get/set), as a standalone control
 
 ### Limitations
 
 * Sensor: Gree's AC units don't update sensor data very often, sometimes interactions may be needed to refresh it
 * Status: Gree's AC units don't provide current status, it's calculated by comparing current temperature and target temperature
 * Oscillate: due to HomeKit's limitations, only full range or off on vertical
+* X-Fan: can only be set in config
 
 ## Config
 
