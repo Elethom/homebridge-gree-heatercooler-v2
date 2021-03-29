@@ -162,18 +162,18 @@ class GreeHeaterCooler {
     const mode = this.device.status[commands.mode.code];
     if (mode === undefined) return;
     switch (mode) {
+      case commands.mode.value.auto:
+        return Characteristic.TargetHeaterCoolerState.AUTO;
       case commands.mode.value.cool:
         return Characteristic.TargetHeaterCoolerState.COOL;
       case commands.mode.value.heat:
         return Characteristic.TargetHeaterCoolerState.HEAT;
       default:
-        return Characteristic.TargetHeaterCoolerState.COOL;
+        return Characteristic.TargetHeaterCoolerState.AUTO;
     }
   }
   
   set targetState(value) { // mode
-    if (value === this.targetState) return;
-
     const state = (() => {
       switch (value) {
         case Characteristic.TargetHeaterCoolerState.AUTO:
@@ -184,6 +184,8 @@ class GreeHeaterCooler {
           return commands.mode.value.cool;
       }
     })();
+    if (state === this.device.status[commands.mode.code]) return;
+    
     const xFan = this.config.xFan ? commands.xFan.value.on : commands.xFan.value.off;
     const command = { [commands.mode.code] : state };
     if (this.device.status[commands.xFan.code] !== xFan) {
