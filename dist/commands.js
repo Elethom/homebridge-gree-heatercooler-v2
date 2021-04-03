@@ -43,11 +43,33 @@ module.exports = {
       high: 5,
     },
   },
-  swingMode: {
+  swingHorizontal: {
+    code: "SwingLfRig",
+    value: {
+      default: 0,
+      full: 1,
+      left: 2,
+      centerLeft: 3,
+      center: 4,
+      centerRight: 5,
+      right: 6,
+    },
+  },
+  swingVertical: {
     code: "SwUpDn",
     value: {
-      off: 0,
-      on: 1,
+      default: 0,
+      full: 1,
+      fixedHighest: 2,
+      fixedHigher: 3,
+      fixedMiddle: 4,
+      fixedLower: 5,
+      fixedLowest: 6,
+      swingLowest: 7,
+      swingLower: 8,
+      swingMiddle: 9,
+      swingHigher: 10,
+      swingHighest: 11,
     },
   },
   xFan: {        

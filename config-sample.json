@@ -16,6 +16,26 @@
       "serialNumber": "4R0099H015337",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
+      "oscillation": {
+        "on": {
+          "horizontal": "full",
+          "vertical": "fallback"
+        },
+        "off": {
+          "horizontal": "default",
+          "vertical": "fallback"
+        }
+      },
+      "autoOscillation": {
+        "cool": {
+          "horizontal": "default",
+          "vertical": "fixedHighest"
+        },
+        "heat": {
+          "horizontal": "default",
+          "vertical": "fixedLowest"
+        }
+      },
       "xFan": true,
       "lightControl": false,
       "fakeSensor": false,

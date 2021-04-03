@@ -12,6 +12,26 @@ class GreeHeaterCooler {
     this.config = {
       minimumTargetTemperature: 16,
       maximumTargetTemperature: 30,
+      oscillation: {
+        on: {
+          horizontal: "full",
+          vertical: "fallback",
+        },
+        off: {
+          horizontal: "default",
+          vertical: "fallback",
+        },
+      },
+      autoOscillation: {
+        cool: {
+          horizontal: "default",
+          vertical: "fixedHighest",
+        },
+        heat: {
+          horizontal: "default",
+          vertical: "fixedLowest",
+        },
+      },
       xFan: true,
       lightControl: false,
       fakeSensor: false,
@@ -186,8 +206,22 @@ class GreeHeaterCooler {
     })();
     if (state === this.device.status[commands.mode.code]) return;
     
+    const swingModes = this._swingModesForTargetState(value);
+    const swingConfig = (() => {
+      switch (this.swingMode) {
+        case Characteristic.SwingMode.SWING_DISABLED:
+          return swingModes.off;
+        case Characteristic.SwingMode.SWING_ENABLED:
+          return swingModes.on;
+      }
+    })();
+    const command = {
+      [commands.mode.code] : state,
+      [commands.swingHorizontal.code] : swingConfig.horizontal,
+      [commands.swingVertical.code] : swingConfig.vertical,
+    };
+    
     const xFan = this.config.xFan ? commands.xFan.value.on : commands.xFan.value.off;
-    const command = { [commands.mode.code] : state };
     if (this.device.status[commands.xFan.code] !== xFan) {
       Object.assign(command, { [commands.xFan.code] : xFan });
     }
@@ -242,32 +276,68 @@ class GreeHeaterCooler {
     })();
     this.device.sendCommands({ [commands.units.code] : command });
   }
+  
+  _swingModesForTargetState(state) {
+    const autoConfig = (() => {
+      switch (state) {
+        case Characteristic.TargetHeaterCoolerState.COOL:
+          return this.config.autoOscillation.cool;
+        case Characteristic.TargetHeaterCoolerState.HEAT:
+          return this.config.autoOscillation.heat;
+        default:
+          return this.config.oscillation.off;
+      }
+    })();
+    return {
+      off: {
+        horizontal:
+        commands.swingHorizontal.value[this.config.oscillation.off.horizontal]
+        || commands.swingHorizontal.value[autoConfig.horizontal]
+        || commands.swingHorizontal.value.default,
+        vertical:
+        commands.swingVertical.value[this.config.oscillation.off.vertical]
+        || commands.swingVertical.value[autoConfig.vertical]
+        || commands.swingVertical.value.default,
+      },
+      on: {
+        horizontal:
+        commands.swingHorizontal.value[this.config.oscillation.on.horizontal]
+        || commands.swingHorizontal.value[autoConfig.horizontal]
+        || commands.swingHorizontal.value.default,
+        vertical:
+        commands.swingVertical.value[this.config.oscillation.on.vertical]
+        || commands.swingVertical.value[autoConfig.vertical]
+        || commands.swingVertical.value.default,
+      },
+    };
+  }
 
   get swingMode() {
-    const swingMode = this.device.status[commands.swingMode.code];
-    if (swingMode === undefined) return;
-    switch (swingMode) {
-      case commands.swingMode.value.off:
-        return Characteristic.SwingMode.SWING_DISABLED;
-      case commands.swingMode.value.on:
-        return Characteristic.SwingMode.SWING_ENABLED;
-      default:
-        return Characteristic.SwingMode.SWING_ENABLED;
+    const swingHorizontal = this.device.status[commands.swingHorizontal.code];
+    const swingVertical = this.device.status[commands.swingVertical.code];
+    if (swingHorizontal === undefined || swingVertical === undefined) return;
+    
+    const mode = this._swingModesForTargetState(this.targetState);
+    if (swingHorizontal === mode.off.horizontal && swingVertical === mode.off.vertical) {
+      return Characteristic.SwingMode.SWING_DISABLED;
     }
+    return Characteristic.SwingMode.SWING_ENABLED;
   }
 
   set swingMode(value) {
-    if (value === this.swingMode) return;
-
-    const command = (() => {
-    switch (value) {
-      case Characteristic.SwingMode.SWING_DISABLED:
-        return commands.swingMode.value.off;
-      case Characteristic.SwingMode.SWING_ENABLED:
-        return commands.swingMode.value.on;
-    }
+    const modes = this._swingModesForTargetState(this.targetState);
+    const config = (() => {
+      switch (value) {
+        case Characteristic.SwingMode.SWING_DISABLED:
+          return modes.off;
+        case Characteristic.SwingMode.SWING_ENABLED:
+          return modes.on;
+      }
     })();
-    this.device.sendCommands({ [commands.swingMode.code] : command });
+    this.device.sendCommands({
+      [commands.swingHorizontal.code] : config.horizontal,
+      [commands.swingVertical.code] : config.vertical,
+    });
   }
 
   get targetTemperature() {
