@@ -37,6 +37,15 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * `mac`: Physical (MAC) address of the AC unit. Required by some AC models, try to set this if you see "Device not found at..." error in the log. It must be just lower case letters and/or numbers.  
 * `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
 * `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C, default to 16-30) Range of target temperature supported by the AC unit. May vary depending on your model.
+* `oscillation`, `autoOscillation`: Oscillation settings. `autoOscillation` is for automation, for example: blow downwards automatically when switching to cool mode.
+  * Valid values:
+    * For horizontal: `default`, `full`, `left`, `centerLeft`, `center`, `centerRight`, `right`
+    * For vertical: `default`, `full`, `fixedHighest`, `fixedHigher`, `fixedMiddle`, `fixedLower`, `fixedLowest`, `swingLowest`, `swingLower`, `swingMiddle`, `swingHigher`, `swingHighest`
+    * `fallback`: Use to fallback to auto oscillation settings. Only available in `oscillation`
+  * Default:
+    * Oscillation switch only controls horizontal oscillation between full range (`full`) and off (`default`)
+    * When switching to cool mode, blow downwards (`fixedLowest`)
+    * When switching to heat mode, blow upwards (`fixedHighest`)
 * `xFan`: (true | false, default to true) Keep the fan running for a while after shutting down from Dry or Cool mode. This helps to keep the filter from being damp, which could lead to mold growing on it. Recommend to leave on.
 * `lightControl`: (true | false, default to false) Show light control as a switch.
 * `fakeSensor`: (true | false, default to false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
@@ -64,6 +73,26 @@ $ npm install -g homebridge-gree-heatercooler-v2
       "serialNumber": "4R0099H012345",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
+      "oscillation": {
+        "on": {
+          "horizontal": "full",
+          "vertical": "fallback"
+        },
+        "off": {
+          "horizontal": "default",
+          "vertical": "fallback"
+        }
+      },
+      "autoOscillation": {
+        "cool": {
+          "horizontal": "default",
+          "vertical": "fixedHighest"
+        },
+        "heat": {
+          "horizontal": "default",
+          "vertical": "fixedLowest"
+        }
+      },
       "xFan": true,
       "lightControl": false,
       "fakeSensor": false,
