@@ -53,8 +53,8 @@ class GreeHeaterCooler {
     log.info(`Config loaded: ${JSON.stringify(this.config, null, 2)}`);
     
     this.state = {
-      lastKnownACState: commands.mode.value.auto,
-      lastKnownFanState: commands.mode.value.fan,
+      lastKnownACMode: commands.mode.value.auto,
+      lastKnownFanMode: commands.mode.value.fan,
     };
     
     this.informationService = new Service.AccessoryInformation()
@@ -204,8 +204,8 @@ class GreeHeaterCooler {
       }
     })();
     const command = { [commands.power.code] : power };
-    if (this.device.status[commands.mode.code] !== this.state.lastKnownACState) {
-      Object.assign(command, { [commands.mode.code] : this.state.lastKnownACState });
+    if (this.device.status[commands.mode.code] !== this.state.lastKnownACMode) {
+      Object.assign(command, { [commands.mode.code] : this.state.lastKnownACMode });
     }
     this.device.sendCommands(command);
   }
@@ -222,8 +222,8 @@ class GreeHeaterCooler {
       }
     })();
     const command = { [commands.power.code] : power };
-    if (this.device.status[commands.mode.code] !== this.state.lastKnownFanState) {
-      Object.assign(command, { [commands.mode.code] : this.state.lastKnownFanState });
+    if (this.device.status[commands.mode.code] !== this.state.lastKnownFanMode) {
+      Object.assign(command, { [commands.mode.code] : this.state.lastKnownFanMode });
     }
     this.device.sendCommands(command);
   }
@@ -265,29 +265,42 @@ class GreeHeaterCooler {
   get targetState() { // mode
     const mode = this.device.status[commands.mode.code];
     if (mode === undefined) return;
-    switch (mode) {
-      case commands.mode.value.auto:
-        this.state.lastKnownACState = mode;
-        return Characteristic.TargetHeaterCoolerState.AUTO;
-      case commands.mode.value.cool:
-        this.state.lastKnownACState = mode;
-        return Characteristic.TargetHeaterCoolerState.COOL;
-      case commands.mode.value.heat:
-        this.state.lastKnownACState = mode;
-        return Characteristic.TargetHeaterCoolerState.HEAT;
+    function stateFromMode(mode) {
+      switch (mode) {
+        case commands.mode.value.auto:
+          return Characteristic.TargetHeaterCoolerState.AUTO;
+        case commands.mode.value.cool:
+          return Characteristic.TargetHeaterCoolerState.COOL;
+        case commands.mode.value.heat:
+          return Characteristic.TargetHeaterCoolerState.HEAT;
+      }
+    }
+    const state = stateFromMode(mode);
+    if (state !== undefined) {
+      this.state.lastKnownACMode = mode;
+      return state;
+    } else {
+      return stateFromMode(this.state.lastKnownACMode);
     }
   }
   
   get fan_mode() {
     const mode = this.device.status[commands.mode.code];
     if (mode === undefined) return;
-    switch (mode) {
-      case commands.mode.value.dry:
-        this.state.lastKnownFanState = mode;
-        return Characteristic.RotationDirection.COUNTER_CLOCKWISE;
-      case commands.mode.value.fan:
-        this.state.lastKnownFanState = mode;
-        return Characteristic.RotationDirection.CLOCKWISE;
+    function stateFromMode(mode) {
+      switch (mode) {
+        case commands.mode.value.dry:
+          return Characteristic.RotationDirection.COUNTER_CLOCKWISE;
+        case commands.mode.value.fan:
+          return Characteristic.RotationDirection.CLOCKWISE;
+      }
+    }
+    const state = stateFromMode(mode);
+    if (state !== undefined) {
+      this.state.lastKnownFanMode = mode;
+      return state;
+    } else {
+      return stateFromMode(this.state.lastKnownFanMode);
     }
   }
   
