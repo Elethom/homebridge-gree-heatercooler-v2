@@ -15,6 +15,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * Info (get/set in config): model, name, serial number
 * Mode (get/set): auto, heat, cool(, fan, dry), off
     * Note: Fan & Dry features are controlled over a separate "fan" device, while clockwise means fan and counter clockwise means dry
+      > Home app's design is a bit confusing here, it might take some to get a hang of which direction is which
 * Current temperature (get)
 * Target temperature (get/set): granularity of 0.5 °C or 1 °F
 * Display units (get/set): celsius, fahrenheit
