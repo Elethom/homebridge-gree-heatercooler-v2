@@ -13,6 +13,7 @@
       "mac": "f4911e504354",
       "model": "KFR-35GW(35592)FNhAc-A1(WIFI)",
       "name": "Living Room AC",
+      "nameFan": "Living Room Fan",
       "serialNumber": "4R0099H015337",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,

@@ -107,7 +107,7 @@ class GreeHeaterCooler {
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
     
-    this.fanService = new Service.Fanv2(`${this.config.name} Fan`);
+    this.fanService = new Service.Fanv2(this.config.nameFan || `${this.config.name} Fan`);
     this.fanService
       .getCharacteristic(Characteristic.Active)
       .on("get", this.onGet.bind(this, "fan_active"))
