@@ -40,6 +40,11 @@ class GreeHeaterCooler {
     };
     log.info(`Config loaded: ${JSON.stringify(this.config, null, 2)}`);
     
+    this.state = {
+      lastKnownACState: commands.mode.value.auto,
+      lastKnownFanState: commands.mode.value.fan,
+    };
+    
     this.informationService = new Service.AccessoryInformation()
       .setCharacteristic(Characteristic.Manufacturer, "Gree")
       .setCharacteristic(Characteristic.Model, this.config.model)
@@ -102,6 +107,25 @@ class GreeHeaterCooler {
       .on("get", this.onGet.bind(this, "targetTemperature"))
       .on("set", this.onSet.bind(this, "targetTemperature"));
     
+    this.fanService = new Service.Fanv2(`${this.config.name} Fan`);
+    this.fanService
+      .getCharacteristic(Characteristic.Active)
+      .on("get", this.onGet.bind(this, "fan_active"))
+      .on("set", this.onSet.bind(this, "fan_active"));
+    this.fanService
+      .getCharacteristic(Characteristic.RotationDirection)
+      .on("get", this.onGet.bind(this, "fan_mode"))
+      .on("set", this.onSet.bind(this, "fan_mode"));
+    this.fanService
+      .getCharacteristic(Characteristic.RotationSpeed)
+      .setProps({
+        minValue: 0,
+        maxValue: 6,
+        minStep: 1,
+      })
+      .on("get", this.onGet.bind(this, "speed"))
+      .on("set", this.onSet.bind(this, "speed"));
+    
     this.lightSwitchService = new Service.Switch(`${this.config.name} Light`);
     this.lightSwitchService
       .getCharacteristic(Characteristic.On)
@@ -118,13 +142,39 @@ class GreeHeaterCooler {
       this.deviceService.getCharacteristic(Characteristic.SwingMode).updateValue(this.swingMode);
       this.deviceService.getCharacteristic(Characteristic.CoolingThresholdTemperature).updateValue(this.targetTemperature);
       this.deviceService.getCharacteristic(Characteristic.HeatingThresholdTemperature).updateValue(this.targetTemperature);
+      this.fanService.getCharacteristic(Characteristic.Active).updateValue(this.fan_active);
+      this.fanService.getCharacteristic(Characteristic.RotationDirection).updateValue(this.fan_mode);
+      this.fanService.getCharacteristic(Characteristic.RotationSpeed).updateValue(this.speed);
+      this.lightSwitchService.getCharacteristic(Characteristic.On).updateValue(this.light);
     });
   }
 
   get active() {
     switch (this.device.status[commands.power.code]) {
       case commands.power.value.on:
-        return Characteristic.Active.ACTIVE;
+        switch (this.device.status[commands.mode.code]) {
+          case commands.mode.value.auto:
+          case commands.mode.value.cool:
+          case commands.mode.value.heat:
+            return Characteristic.Active.ACTIVE;
+          default:
+            return Characteristic.Active.INACTIVE;
+        }
+      case commands.power.value.off:
+        return Characteristic.Active.INACTIVE;
+    }
+  }
+  
+  get fan_active() {
+    switch (this.device.status[commands.power.code]) {
+      case commands.power.value.on:
+        switch (this.device.status[commands.mode.code]) {
+          case commands.mode.value.dry:
+          case commands.mode.value.fan:
+            return Characteristic.Active.ACTIVE;
+          default:
+            return Characteristic.Active.INACTIVE;
+        }
       case commands.power.value.off:
         return Characteristic.Active.INACTIVE;
     }
@@ -133,7 +183,7 @@ class GreeHeaterCooler {
   set active(value) {
     if (value === this.active) return;
     
-    const command = (() => {
+    const power = (() => {
       switch (value) {
         case Characteristic.Active.ACTIVE:
           return commands.power.value.on;
@@ -141,7 +191,29 @@ class GreeHeaterCooler {
           return commands.power.value.off;
       }
     })();
-    this.device.sendCommands({ [commands.power.code] : command });
+    const command = { [commands.power.code] : power };
+    if (this.device.status[commands.mode.code] !== this.state.lastKnownACState) {
+      Object.assign(command, { [commands.mode.code] : this.state.lastKnownACState });
+    }
+    this.device.sendCommands(command);
+  }
+
+  set fan_active(value) {
+    if (value === this.fan_active) return;
+    
+    const power = (() => {
+      switch (value) {
+        case Characteristic.Active.ACTIVE:
+          return commands.power.value.on;
+        case Characteristic.Active.INACTIVE:
+          return commands.power.value.off;
+      }
+    })();
+    const command = { [commands.power.code] : power };
+    if (this.device.status[commands.mode.code] !== this.state.lastKnownFanState) {
+      Object.assign(command, { [commands.mode.code] : this.state.lastKnownFanState });
+    }
+    this.device.sendCommands(command);
   }
 
   get currentTemperature() {
@@ -183,18 +255,32 @@ class GreeHeaterCooler {
     if (mode === undefined) return;
     switch (mode) {
       case commands.mode.value.auto:
+        this.state.lastKnownACState = mode;
         return Characteristic.TargetHeaterCoolerState.AUTO;
       case commands.mode.value.cool:
+        this.state.lastKnownACState = mode;
         return Characteristic.TargetHeaterCoolerState.COOL;
       case commands.mode.value.heat:
+        this.state.lastKnownACState = mode;
         return Characteristic.TargetHeaterCoolerState.HEAT;
-      default:
-        return Characteristic.TargetHeaterCoolerState.AUTO;
+    }
+  }
+  
+  get fan_mode() {
+    const mode = this.device.status[commands.mode.code];
+    if (mode === undefined) return;
+    switch (mode) {
+      case commands.mode.value.dry:
+        this.state.lastKnownFanState = mode;
+        return Characteristic.RotationDirection.COUNTER_CLOCKWISE;
+      case commands.mode.value.fan:
+        this.state.lastKnownFanState = mode;
+        return Characteristic.RotationDirection.CLOCKWISE;
     }
   }
   
   set targetState(value) { // mode
-    const state = (() => {
+    const mode = (() => {
       switch (value) {
         case Characteristic.TargetHeaterCoolerState.AUTO:
           return commands.mode.value.auto;
@@ -204,9 +290,27 @@ class GreeHeaterCooler {
           return commands.mode.value.cool;
       }
     })();
-    if (state === this.device.status[commands.mode.code]) return;
+    if (mode === this.device.status[commands.mode.code]) return;
     
-    const swingModes = this._swingModesForTargetState(value);
+    this._setMode(mode);
+  }
+  
+  set fan_mode(value) {
+    const mode = (() => {
+      switch (value) {
+        case Characteristic.RotationDirection.COUNTER_CLOCKWISE:
+          return commands.mode.value.dry;
+        case Characteristic.RotationDirection.CLOCKWISE:
+          return commands.mode.value.fan;
+      }
+    })();
+    if (mode === this.device.status[commands.mode.code]) return;
+    
+    this._setMode(mode);
+  }
+  
+  _setMode(mode) {
+    const swingModes = this._swingModesForMode(mode);
     const swingConfig = (() => {
       switch (this.swingMode) {
         case Characteristic.SwingMode.SWING_DISABLED:
@@ -216,7 +320,7 @@ class GreeHeaterCooler {
       }
     })();
     const command = {
-      [commands.mode.code] : state,
+      [commands.mode.code] : mode,
       [commands.swingHorizontal.code] : swingConfig.horizontal,
       [commands.swingVertical.code] : swingConfig.vertical,
     };
@@ -277,12 +381,12 @@ class GreeHeaterCooler {
     this.device.sendCommands({ [commands.units.code] : command });
   }
   
-  _swingModesForTargetState(state) {
+  _swingModesForMode(mode) {
     const autoConfig = (() => {
-      switch (state) {
-        case Characteristic.TargetHeaterCoolerState.COOL:
+      switch (mode) {
+        case commands.mode.value.cool:
           return this.config.autoOscillation.cool;
-        case Characteristic.TargetHeaterCoolerState.HEAT:
+        case commands.mode.value.heat:
           return this.config.autoOscillation.heat;
         default:
           return this.config.oscillation.off;
@@ -317,7 +421,7 @@ class GreeHeaterCooler {
     const swingVertical = this.device.status[commands.swingVertical.code];
     if (swingHorizontal === undefined || swingVertical === undefined) return;
     
-    const mode = this._swingModesForTargetState(this.targetState);
+    const mode = this._swingModesForMode(this.device.status[commands.mode.code]);
     if (swingHorizontal === mode.off.horizontal && swingVertical === mode.off.vertical) {
       return Characteristic.SwingMode.SWING_DISABLED;
     }
@@ -325,7 +429,7 @@ class GreeHeaterCooler {
   }
 
   set swingMode(value) {
-    const modes = this._swingModesForTargetState(this.targetState);
+    const modes = this._swingModesForMode(this.device.status[commands.mode.code]);
     const config = (() => {
       switch (value) {
         case Characteristic.SwingMode.SWING_DISABLED:
@@ -393,6 +497,7 @@ class GreeHeaterCooler {
     const services = [
       this.informationService,
       this.deviceService,
+      this.fanService,
     ];
     if (this.config.lightControl) {
       services.push(this.lightSwitchService);
