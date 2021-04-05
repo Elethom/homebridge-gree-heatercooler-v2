@@ -13,7 +13,8 @@ $ npm install -g homebridge-gree-heatercooler-v2
 ## Features
 
 * Info (get/set in config): model, name, serial number
-* Mode (get/set): auto, heat, cool, off
+* Mode (get/set): auto, heat, cool(, fan, dry), off
+    * Note: Fan & Dry features are controlled over a separate "fan" device, while clockwise means fan and counter clockwise means dry
 * Current temperature (get)
 * Target temperature (get/set): granularity of 0.5 °C or 1 °F
 * Display units (get/set): celsius, fahrenheit
@@ -36,16 +37,22 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * `address`: Local IP address of the AC unit. It has to be connected to local network before using this plugin.
 * `mac`: Physical (MAC) address of the AC unit. Required by some AC models, try to set this if you see "Device not found at..." error in the log. It must be just lower case letters and/or numbers.  
 * `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
+* `nameFan`: Name for fan device.
 * `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C, default to 16-30) Range of target temperature supported by the AC unit. May vary depending on your model.
 * `oscillation`, `autoOscillation`: Oscillation settings. `autoOscillation` is for automation, for example: blow downwards automatically when switching to cool mode.
+  * Valid modes
+    * For oscillation: `on`, `off`
+    * For auto oscillation: `auto`, `cool`, `heat`, `fan`, `dry`
   * Valid values:
     * For horizontal: `default`, `full`, `left`, `centerLeft`, `center`, `centerRight`, `right`
     * For vertical: `default`, `full`, `fixedHighest`, `fixedHigher`, `fixedMiddle`, `fixedLower`, `fixedLowest`, `swingLowest`, `swingLower`, `swingMiddle`, `swingHigher`, `swingHighest`
     * `fallback`: Use to fallback to auto oscillation settings. Only available in `oscillation`
   * Default:
     * Oscillation switch only controls horizontal oscillation between full range (`full`) and off (`default`)
+    * When switching to auto mode, do not swing vertically (`default`)
     * When switching to cool mode, blow downwards (`fixedLowest`)
     * When switching to heat mode, blow upwards (`fixedHighest`)
+    * When switching to fan and dry modes, swing vertically on full range (`full`)
 * `xFan`: (true | false, default to true) Keep the fan running for a while after shutting down from Dry or Cool mode. This helps to keep the filter from being damp, which could lead to mold growing on it. Recommend to leave on.
 * `lightControl`: (true | false, default to false) Show light control as a switch.
 * `fakeSensor`: (true | false, default to false) For those models without built-in temperature sensor. This option enables a fake sensor using target temperature as current. Use of this option disables detection of whether AC is actively heating/cooling or being idle at target temperature.
@@ -70,6 +77,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
       "mac": "f4911e504354",    
       "model": "KFR-35GW(35592)FNhAc-A1(WIFI)",
       "name": "Living Room AC",
+      "nameFan": "Living Room Fan",
       "serialNumber": "4R0099H012345",
       "minimumTargetTemperature": 16,
       "maximumTargetTemperature": 30,
@@ -84,6 +92,10 @@ $ npm install -g homebridge-gree-heatercooler-v2
         }
       },
       "autoOscillation": {
+        "auto": {
+          "horizontal": "default",
+          "vertical": "default"
+        },
         "cool": {
           "horizontal": "default",
           "vertical": "fixedHighest"
@@ -91,6 +103,14 @@ $ npm install -g homebridge-gree-heatercooler-v2
         "heat": {
           "horizontal": "default",
           "vertical": "fixedLowest"
+        },
+        "fan": {
+          "horizontal": "default",
+          "vertical": "full"
+        },
+        "dry": {
+          "horizontal": "default",
+          "vertical": "full"
         }
       },
       "xFan": true,
