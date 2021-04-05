@@ -28,6 +28,10 @@
         }
       },
       "autoOscillation": {
+        "auto": {
+          "horizontal": "default",
+          "vertical": "default"
+        },
         "cool": {
           "horizontal": "default",
           "vertical": "fixedHighest"
@@ -35,6 +39,14 @@
         "heat": {
           "horizontal": "default",
           "vertical": "fixedLowest"
+        },
+        "fan": {
+          "horizontal": "default",
+          "vertical": "full"
+        },
+        "dry": {
+          "horizontal": "default",
+          "vertical": "full"
         }
       },
       "xFan": true,

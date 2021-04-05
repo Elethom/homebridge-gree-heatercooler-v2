@@ -23,6 +23,10 @@ class GreeHeaterCooler {
         },
       },
       autoOscillation: {
+        auto: {
+          horizontal: "default",
+          vertical: "default",
+        },
         cool: {
           horizontal: "default",
           vertical: "fixedHighest",
@@ -30,6 +34,14 @@ class GreeHeaterCooler {
         heat: {
           horizontal: "default",
           vertical: "fixedLowest",
+        },
+        fan: {
+          horizontal: "default",
+          vertical: "full",
+        },
+        dry: {
+          horizontal: "default",
+          vertical: "full",
         },
       },
       xFan: true,
@@ -384,10 +396,16 @@ class GreeHeaterCooler {
   _swingModesForMode(mode) {
     const autoConfig = (() => {
       switch (mode) {
+        case commands.mode.value.auto:
+          return this.config.autoOscillation.auto;
         case commands.mode.value.cool:
           return this.config.autoOscillation.cool;
         case commands.mode.value.heat:
           return this.config.autoOscillation.heat;
+        case commands.mode.value.fan:
+          return this.config.autoOscillation.fan;
+        case commands.mode.value.dry:
+          return this.config.autoOscillation.dry;
         default:
           return this.config.oscillation.off;
       }
