@@ -42,7 +42,7 @@ $ npm install -g homebridge-gree-heatercooler-v2
 * `model`, `name`, `serialNumber`: Information of the AC unit. Does not affect functions.
 * `nameFan`: Name for fan device.
 * `minimumTargetTemperature`, `maximumTargetTemperature`: (in °C, default to 16-30) Range of target temperature supported by the AC unit. May vary depending on your model.
-* `oscillation`, `autoOscillation`: Oscillation settings. `autoOscillation` is for automation, for example: blow downwards automatically when switching to cool mode.
+* `oscillation`, `autoOscillation`: Oscillation settings. `autoOscillation` is for automation, for example: blow upwards automatically when switching to cool mode.
   * Valid modes
     * For oscillation: `on`, `off`
     * For auto oscillation: `auto`, `cool`, `heat`, `fan`, `dry`
@@ -53,8 +53,8 @@ $ npm install -g homebridge-gree-heatercooler-v2
   * Default:
     * Oscillation switch only controls horizontal oscillation between full range (`full`) and off (`default`)
     * When switching to auto mode, do not swing vertically (`default`)
-    * When switching to cool mode, blow downwards (`fixedLowest`)
-    * When switching to heat mode, blow upwards (`fixedHighest`)
+    * When switching to cool mode, blow upwards (`fixedHighest`)
+    * When switching to heat mode, blow downwards (`fixedLowest`)
     * When switching to fan and dry modes, swing vertically on full range (`full`)
 * `xFan`: (true | false, default to true) Keep the fan running for a while after shutting down from Dry or Cool mode. This helps to keep the filter from being damp, which could lead to mold growing on it. Recommend to leave on.
 * `lightControl`: (true | false, default to false) Show light control as a switch.
