@@ -10,6 +10,7 @@ class GreeHeaterCooler {
   constructor(log, config) {
     this.log = log;
     this.config = {
+      port: 7000,
       minimumTargetTemperature: 16,
       maximumTargetTemperature: 30,
       oscillation: {

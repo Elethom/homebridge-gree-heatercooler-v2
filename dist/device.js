@@ -3,8 +3,6 @@ const dgram = require("dgram");
 const crypto = require("./crypto");
 const commands = require("./commands");
 
-const remotePort = 7000;
-const localPort = 48964;
 const retryInterval = 5000;
 const updateInterval = 1000;
 
@@ -67,27 +65,27 @@ class Device {
     try {
       this.mac = this.config.mac;
       this._bind();
-      this.log.debug(`Binding to device at ${this.config.address}:${remotePort}(${this.mac})`);
+      this.log.debug(`Binding to device at ${this.config.address}:${this.config.port}(${this.mac})`);
     } catch (error) {
       this.log.error(error);
     }
     this._retry(
       this._init.bind(this),
-      `Device not found at ${this.config.address}:${remotePort}(${this.mac}), retrying...`
+      `Device not found at ${this.config.address}:${this.config.port}(${this.mac}), retrying...`
     );
   }
 
   _scan() {
     try {
       const msg = JSON.stringify({ t: "scan" });
-      this.log.debug(`Scan for device at ${this.config.address}:${remotePort}`);
-      this.socket.send(msg, remotePort, this.config.address);
+      this.log.debug(`Scan for device at ${this.config.address}:${this.config.port}`);
+      this.socket.send(msg, this.config.port, this.config.address);
     } catch (error) {
       this.log.error(error);
     }
     this._retry(
       this._scan.bind(this),
-      `Device not found at ${this.config.address}:${remotePort}, retrying...`
+      `Device not found at ${this.config.address}:${this.config.port}, retrying...`
     );
   }
 
@@ -136,7 +134,7 @@ class Device {
     const msg = JSON.stringify(request);
     this.log.debug(`[${this.mac}] Send request: %j`, message);
     try {
-      this.socket.send(msg, remotePort, this.config.address);
+      this.socket.send(msg, this.config.port, this.config.address);
     } catch (error) {
       this.log.error(error);
     }

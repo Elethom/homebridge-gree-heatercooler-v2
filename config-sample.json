@@ -10,6 +10,7 @@
     {
       "accessory": "GreeHeaterCooler",
       "address": "10.0.1.128",
+      "port": 7000,
       "mac": "f4911e504354",
       "model": "KFR-35GW(35592)FNhAc-A1(WIFI)",
       "name": "Living Room AC",
