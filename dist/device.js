@@ -167,7 +167,7 @@ class Device {
         break;
       case "res": // command response
         pack.opt.forEach((col, i) => {
-          this.status[col] = pack.val[i];
+          this.status[col] = pack.p[i];
         });
         this.log.debug(`[${this.mac}] Command responded: %j`, this.status);
         this.updateCallback();
